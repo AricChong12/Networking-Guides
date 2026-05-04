@@ -1,0 +1,73 @@
+Examples
+1. Configure EtherChannel with PAgP
+
+S1(config)# interface range f0/21 – 22
+S1(config-if-range)# shutdown
+S1(config-if-range)# channel-group 1 mode desirable
+S1(config-if-range)# no shutdown
+
+S3(config)# interface range f0/21 - 22
+S3(config-if-range)# shutdown
+S3(config-if-range)# channel-group 1 mode desirable
+S3(config-if-range)# no shutdown
+
+
+Verification EtherChannel
+
+sh etherchannel sum
+
+
+1. Configure LACP EtherChannel
+
+S1(config)# interface range g0/1 - 2
+S1(config-if-range)# shutdown
+S1(config-if-range)# channel-group 2 mode active
+S1(config-if-range)# no shutdown
+S1(config-if-range)# interface port-channel 2
+S1(config-if)# switchport mode trunk
+
+
+S2(config)# interface range g0/1 - 2
+S2(config-if-range)# shutdown
+S2(config-if-range)# channel-group 2 mode active
+S2(config-if-range)# no shutdown
+S2(config-if-range)# interface port-channel 2
+S2(config-if)# switchport mode trunk
+
+
+1. Configure Redundant EtherChannel Link
+
+S2(config)# interface range f0/23 - 24
+S2(config-if-range)# channel-group 3 mode ?
+  active     Enable LACP unconditionally
+  auto       Enable PAgP only if a PAgP device is 		     detected
+  desirable  Enable PAgP unconditionally
+  on         Enable Etherchannel only
+  passive    Enable LACP only if a LACP device is    		     detected 
+
+S2(config)# interface range f0/23 - 24
+S2(config-if-range)# shutdown
+S2(config-if-range)# channel-group 3 mode passive
+S2(config-if-range)# no shutdown
+S2(config-if-range)# interface port-channel 3
+S2(config-if)# switchport mode trunk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

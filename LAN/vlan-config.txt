@@ -1,0 +1,37 @@
+Examples
+1. Creating VLANs
+
+vlan 10
+name Faculty/Staff 
+
+Repeats with all vlans
+
+
+VLANs Verification
+
+sh int vlan
+
+
+2. Assign VLANs to active ports
+
+int f0/11
+switchport mode access
+switchport access vlan 10
+no shut
+
+
+Cisco VLAN Voice Traffic
+
+int f0/11
+mls qos trust cos
+switchport voice vlan 150
+
+
+Connectivity Verification
+
+sh vlan brief
+
+
+
+
+

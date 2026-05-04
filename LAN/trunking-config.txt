@@ -1,0 +1,18 @@
+Examples
+1. Trunks Configuration
+
+int range g0/1-2
+switchport mode trunk
+switchport trunk native vlan 99
+switchport trunk allowed vlan 10, 20, 30, 99
+no shut
+
+Tips: range is optional
+Tips: vlan 99 is management vlan
+
+Repeats with all the trunks
+
+
+Trunks Verification
+
+sh int trunk

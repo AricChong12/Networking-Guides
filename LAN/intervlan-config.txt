@@ -1,0 +1,56 @@
+Examples
+
+Router
+1. Configures subinterfaces with with 802.1Q encapsulation
+
+int g0/1.10
+encapsulation dot1Q 10
+ip address 172.17.10.1 255.255.255.0
+
+Repeats for all subinterfaces
+
+Tips: 172.17.10.1 is gateway of vlan
+
+
+Configuration Verification
+
+int g0/1
+no shut
+
+
+L3 Switch
+1. Adds VLANs
+
+
+2. Configures SVI on MLS
+
+int vlan 10
+ip address 172.17.10.1 255.255.255.0
+
+
+3. Trunking on MLS
+
+
+4. Enables routing
+ip routing
+
+verification of routing
+sh ip route
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
