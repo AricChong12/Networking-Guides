@@ -1,0 +1,94 @@
+eBGP
+
+1. Remove default and static routes
+
+2. Modify ACL to allow BGP protocol
+
+R1(config)#no ip access-list extended VPN-ACL 
+R1(config)#ip access-list extended VPN-ACL 
+R1(config-ext-nacl)# permit udp any host 200.200.200.1 eq isakmp 
+R1(config-ext-nacl)# permit esp any host 200.200.200.1 
+R1(config-ext-nacl)# permit tcp any any established 
+R1(config-ext-nacl)# permit tcp any host 200.200.200.1 eq 179 
+R1(config-ext-nacl)# permit tcp host 200.200.200.1 eq 179 any 
+R1(config-ext-nacl)# deny ip any any 
+
+Notes
+
+established 
+= Allow only TCP packets that belong to an already established TCP connection
+
+179 = BGP protocol port number
+
+any at line 7 means destination 
+
+
+3. Configure eBGP Routing 
+
+R1(config)# router bgp 65001
+
+Format: router bgp [64512-65534 (Private ASN)]
+
+R1(config-router)#neighbor 200.200.200.2 remote-as 65002 
+
+Format: neighbor [neighbor router IP] remote-as [Another Private ASN Number]
+
+R1(config-router)#network 192.168.1.0 mask 255.255.255.128 
+R1(config-router)#network 192.168.1.128 mask 255.255.255.240 
+R1(config-router)#network 200.200.200.0 mask 255.255.255.252
+
+Format: network [NA] mask [SM]
+
+4. Configure BGP on ISP
+
+ISP(config)# router bgp 65002
+ISP(config-router)#neighbor 200.200.200.1 remote-as 65001 
+ISP(config-router)#neighbor 200.200.200.17 remote-as 65003 
+
+5. Advertise default route in BGP
+
+ISP(config)# ip route 0.0.0.0 0.0.0.0 Null0
+
+Notes
+Null0 - A virtual interface that silently drops packets
+
+ISP(config)# router bgp 65002 
+ISP(config-router)# network 0.0.0.0
+
+0.0.0.0 means default route 
+
+
+Verification
+
+show ip route
+show ip bgp
+show ip bgp summary
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

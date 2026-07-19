@@ -1,0 +1,191 @@
+IPsec
+
+
+1. Configure IKEv1 Policy
+
+R1(config)# crypto isakmp policy 10 
+R1(config-isakmp)# hash sha 
+R1(config-isakmp)# authentication pre-share 
+R1(config-isakmp)# group 5 
+R1(config-isakmp)# lifetime 86400 
+R1(config-isakmp)# encryption aes 256 
+R1(config-isakmp)# exit 
+
+Format:
+
+crypto isakmp policy [10/20/30 The lower The higher Priority]
+hash [hashing algorithm type]
+authentication [auth method]
+group [Diffie-Hellman DH Group Type 1/2/5/14/15/16]
+lifetime [3600/28800/86400]
+encryption [encryption type]
+exit
+
+R1(config)# crypto isakmp key VPN-PASS address 200.200.200.17 
+
+Format: crypto isakmp key [Crypto Key Name] address [First VPN Router Address]
+
+
+2. Configure IPsec policy 
+
+R1(config)# crypto ipsec transform-set VPN-SET esp-aes esp-sha-hmac 
+
+Format: crypto IPsec transform-set [Name] [encryption] [integrity]
+
+R1(config)# access-list 100 permit ip 192.168.1.0 0.0.0.255 172.16.1.0 0.0.0.255
+
+Format: access-list [100-199/2000-2699] permit [protocol] [Network NA 1] [Wildcard Mask] [Network NA 2] [Wildcard Mask]
+
+R1(config)# crypto map VPN-MAP 10 ipsec-isakmp 
+R1(config-crypto-map)# description VPN connection to R3 
+R1(config-crypto-map)# set peer 200.200.200.17 
+R1(config-crypto-map)# set transform-set VPN-SET 
+R1(config-crypto-map)# match address 100 
+R1(config-crypto-map)# exit 
+
+Format:
+
+crypto map [Map Name] [IKEv1 Policy Number] ipsec-isakmp
+description [Comments]
+set peer [First Router that wants VPN]
+set transform-set [Transform-set Name]
+match address [access-list number]
+exit
+
+R1(config)# interface s0/0/0 
+R1(config-if)# crypto map VPN-MAP 
+
+Format: 
+interface [interface name]
+crypto map [Crypto Map Name]
+
+
+3. Configure IKEv1 on peer router
+
+R3(config)# crypto isakmp policy 10 
+R3(config-isakmp)# hash sha 
+R3(config-isakmp)# authentication pre-share 
+R3(config-isakmp)# group 5 
+R3(config-isakmp)# lifetime 86400 
+R3(config-isakmp)# encryption aes 256
+R3(config-isakmp)# exit 
+R3 (config)# crypto isakmp key VPN-PASS address 200.200.200.1
+
+
+4. Configure IPsec policy on peer router
+
+R3 (config)# crypto ipsec transform-set VPN-SET esp-aes esp-sha-hmac 
+
+R3(config)# access-list 100 permit ip 172.16.1.0 0.0.0.255 192.168.1.0 0.0.0.255
+
+R3 (config)# crypto map VPN-MAP 10 ipsec-isakmp 
+R3 (config-crypto-map)# description VPN connection to R1 
+R3 (config-crypto-map)# set peer 200.200.200.1 
+R3 (config-crypto-map)# set transform-set VPN-SET 
+R3 (config-crypto-map)# match address 100 
+R3 (config-crypto-map)# exit
+
+R3 (config)# interface s0/0/1 
+R3 (config-if)# crypto map VPN-MAP 
+
+
+IPsec VPN tunnel Verification
+
+show crypto isakmp sa
+show crypto ipsec sa
+
+
+Modifications of NAT and ACLs
+
+Static NAT
+
+R1 (config)# ip access-list extended SERVER-VPN-NAT 
+R1 (config-ext-nacl)# deny ip host 192.168.1.142  172.16.1.0 0.0.0.255   
+R1 (config-ext-nacl)# permit ip host 192.168.1.142 any    
+R1 (config-ext-nacl)# deny ip any any 
+
+R1 (config)# ip nat pool SERVER-VPN-POOL 200.200.200.3 200.200.200.3 netmask 255.255.255.240 
+R1 (config)# ip nat inside source list SERVER-VPN-NAT pool SERVER-VPN-POOL
+
+Dynamic NAT
+
+R1 (config)# ip access-list extended DYNAMIC-VPN-NAT 
+R1 (config-ext-nacl)# deny ip 192.168.1.0 0.0.0.255 172.16.1.0 0.0.0.255   
+R1 (config-ext-nacl)# permit ip 192.168.1.0 0.0.0.255 any 
+R1 (config-ext-nacl)# deny ip any any 
+
+R1 (config)# ip nat pool NAT-POOL-R1 200.200.200.5 200.200.200.8 netmask 255.255.255.240 
+R1 (config)# ip nat inside source list DYNAMIC-VPN-NAT pool NAT-POOL-R1
+
+PAT
+
+R3 (config)# ip access-list extended PAT-VPN-NAT 
+R3 (config-ext-nacl)# deny ip 172.16.1.0 0.0.0.255  192.168.1.0 0.0.0.255  
+R3 (config-ext-nacl)# permit ip 172.16.1.0 0.0.0.255  any 
+R3 (config-ext-nacl)# deny ip any any 
+
+R3 (config)# ip nat inside source list PAT-VPN-NAT interface s0/0/1 overload
+
+
+ACLs
+
+R1(config)#ip access-list extended VPN-EXTERNAL-ACL 
+R1(config-ext-nacl)# permit ip 172.16.1.0 0.0.0.255 192.168.1.0 0.0.0.255 
+R1(config-ext-nacl)# permit icmp host 200.200.200.17 host 200.200.200.1 
+R1(config-ext-nacl)# permit udp any any eq isakmp         
+R1(config-ext-nacl)# permit udp any any eq 4500           
+R1(config-ext-nacl)# permit esp any any                  
+R1(config-ext-nacl)# permit tcp 172.16.1.0 0.0.0.255 192.168.1.0 0.0.0.255 eq 443 
+R1(config-ext-nacl)# permit tcp 172.16.1.0 0.0.0.255 192.168.1.0 0.0.0.255 eq 20 
+R1(config-ext-nacl)# permit tcp 172.16.1.0 0.0.0.255 192.168.1.0 0.0.0.255 eq 21 
+R1(config-ext-nacl)# deny ip any any 
+R1(config-ext-nacl)# exit 
+
+R1(config)# interface s0/0/0 
+R1(config-if)# ip access-group VPN-EXTERNAL-ACL in
+
+
+R1(config)#ip access-list extended VPN-EXTERNAL-ACL 
+R1(config-ext-nacl)# permit ip 172.16.1.0 0.0.0.255 192.168.1.0 0.0.0.255 
+R1(config-ext-nacl)# permit icmp host 200.200.200.17 host 200.200.200.1 
+R1(config-ext-nacl)# permit udp any any eq isakmp         
+R1(config-ext-nacl)# permit udp any any eq 4500           
+R1(config-ext-nacl)# permit esp any any                  
+R1(config-ext-nacl)# permit tcp 172.16.1.0 0.0.0.255 192.168.1.0 0.0.0.255 eq 443 
+R1(config-ext-nacl)# permit tcp 172.16.1.0 0.0.0.255 192.168.1.0 0.0.0.255 eq 20 
+R1(config-ext-nacl)# permit tcp 172.16.1.0 0.0.0.255 192.168.1.0 0.0.0.255 eq 21 
+R1(config-ext-nacl)# deny ip any any 
+R1(config-ext-nacl)# exit 
+R1(config)# interface s0/0/0 
+R1(config-if)# ip access-group VPN-EXTERNAL-ACL in 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

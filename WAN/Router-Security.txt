@@ -1,0 +1,112 @@
+Router Security
+
+Type 0- Plaintext passwords  
+Type 7 – simple encryption that hides the password using a simple encryption algorithms. 
+Type 5 - Complex encryption using MD5 hashing techniques. 
+
+
+Type 0 Password
+
+R1(config)# username student1 password cisco123 
+
+Format: username [username] password [password]
+
+
+Type 7 Password
+
+R1(config)# service password-encryption
+
+
+Type 5 Password
+
+R1(config)# username student1 secret cisco123 
+
+Format: username [username] secret [password]
+
+
+Configure Minimum Password Length
+
+R1(config)# security password min-length 10 
+
+Format: security password min-length [length]
+
+R1(config)# username student2 secret cisco12345
+
+Format: username [username] secret [password]
+
+
+Password Recovery
+
+a. Turn off, and the turn on the router 
+b. Press <Break> on your keyboard within 60 seconds.
+
+ROMMON1> confreg 0x2142
+ROMMON2> reset 
+
+Router> enable 
+Router# copy start-configuration running-configuration
+Router# show run
+
+Router# configure terminal 
+Router(config)#config-register 0x2102 
+Router# do copy run start 
+
+
+Secure Remote Admin Access
+
+Router(config)#hostname R1
+R1(config)#ip domain-name cat.com 
+
+R1(config)#crypto key generate rsa 
+
+
+VTY
+
+R1(config)#username admin secret cisco12345
+
+R1(config)# line vty 0 4 
+R1(config-line)# no transport input 
+R1(config-line)# transport input ssh 
+
+0 4 means configure vty through 0 to 4 (0,1,2,3,4) - 5 login sessions
+no transport input means disable all incoming remote access protocols on VTY lines
+transport input ssh means allows SSH connection only to the router
+
+R1(config-line)# login local
+^
+tells the Cisco router to authenticate users using the local username database configured on the router. 
+
+
+Configure SSH Options
+
+R1(config-line)# ip ssh version 2 
+R1(config-line)# ip ssh time-out 15 
+R1(config-line)# ip ssh authentication-retries 2
+
+1. Forces the router to use SSH Version 2.
+2. Sets the amount of time (in seconds) the router waits for an SSH authentication response.
+3. Defines how many times a user can enter incorrect authentication details before the SSH session is terminated.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

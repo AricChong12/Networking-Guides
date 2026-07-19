@@ -1,0 +1,27 @@
+PPP Encapsulation
+
+1. Configuring PPP Encapsulation on serial interface
+
+ISP(config)# interface Serial0/0/0 
+ISP(config-subif)# encapsulation ppp 
+ISP(config-if)# no shutdown 
+
+
+CHAP Authentication
+
+1. Configuring CHAP Authentication 
+
+R1(config)#int s0/0/0 
+R1(config-if)#ppp authentication chap 
+R1(config)#username ISP password cisco123 
+
+
+PAP Authentication
+
+1. Configuring PAP Authentication 
+
+ISP(config)#int s0/0/1 
+ISP(config-if)#ppp authentication pap 
+ISP(config-if)#ppp pap sent-username ISP password cisco123 
+ISP(config)#username R3 password cisco123 
+

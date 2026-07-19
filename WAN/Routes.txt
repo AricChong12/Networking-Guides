@@ -1,0 +1,28 @@
+Static Routes Configuration
+
+R3(config)# ip route 200.200.200.0 255.255.255.252 200.200.200.6 
+R3(config)# ip route 192.168.1.0 255.255.255.128 200.200.200.6 
+R3(config)# ip route 192.168.1.128 255.255.255.240 200.200.200.6 
+
+format: ip route [NA] [SM] [Next-Hop Router Address]
+
+ISP(config)# ip route 192.168.1.0 255.255.255.128 Serial0/0/0  
+ISP(config)# ip route 192.168.1.0 255.255.255.240 Serial0/0/0  
+ISP(config)# ip route 172.16.1.0 255.255.255.128 Serial0/0/1  
+ISP(config)# ip route 172.16.1.128 255.255.255.240 Serial0/0/1 
+
+format: ip route [NA] [SM] [Interface]
+
+
+Default Routes
+
+R1(config)#ip route 0.0.0.0 0.0.0.0 200.200.200.2 
+
+format: ip route [source] [destination] [Exit Interface]
+
+
+Routes Configuration Verification
+
+show ip route
+show ip route static
+show ip route [network] 

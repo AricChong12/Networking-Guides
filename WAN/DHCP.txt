@@ -1,0 +1,32 @@
+DHCP
+
+1. Configure Router as DHCP Server
+
+R1(dhcp-config)#ip dhcp excluded-address 192.168.1.1 192.168.1.50 
+
+Format: ip dhcp excluded-address [range 1] [range 2]
+
+
+2. Create DHCP pool
+
+R1(config)#ip dhcp pool POOL-R1 
+
+Format: ip dhcp pool [Pool Name]
+
+
+3. Configure DHCP Pool
+
+R1(dhcp-config)#network 192.168.1.0 255.255.255.128 
+R1(dhcp-config)#default-router 192.168.1.1
+
+Format: 
+network [NA] [SM]
+default-router [Router(DHCP Server)]
+
+
+4. Configure a Relay Agent
+
+R3(config)# interface g0/1.10 
+R3(config-if)# ip helper-address [dhcp-server-address]
+
+
